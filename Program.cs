@@ -56,6 +56,8 @@ public class JevPlaygroundForm : Form
     private Button btnDeleteQ = null!;
     private Button btnClearQ = null!;
     private GroupBox gbQ = null!;
+    private GroupBox gbQList = null!;
+    private FlowLayoutPanel pnlQList = null!;
     private string _builderType = "noul";
 
     private TextBox txtRawJsonOutput = null!;
@@ -320,34 +322,19 @@ public class JevPlaygroundForm : Form
         btnDeleteQ.Click += (s, e) => {
             string rawId = txtQId.Text.Trim();
             if (rawId.Length == 0) { lblStatus.Text = " ● Status: No Question ID set to delete"; return; }
-            try
-            {
-                if (JsonNode.Parse(txtQuestionsJson.Text) is JsonObject target && target.Remove(rawId))
-                {
-                    txtQuestionsJson.Text = target.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
-                    lblStatus.Text = $" ● Status: Question '{rawId}' deleted";
-                    UpdateQCount();
-                }
-                else
-                {
-                    lblStatus.Text = $" ● Status: Question '{rawId}' not found";
-                }
-            }
-            catch (JsonException)
-            {
-                lblStatus.Text = " ● Status: Cannot delete — Questions JSON is invalid";
-            }
+            DeleteQuestionById(rawId);
         };
 
         btnClearQ = new Button { Text = "✖ Clear", Location = new Point(235, 225), Width = 55, Height = 28, BackColor = ColCardAlt, ForeColor = ColMuted, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
         btnClearQ.FlatAppearance.BorderSize = 0;
-        btnClearQ.Click += (s, e) => { txtQuestionsJson.Text = "{\n}"; lblStatus.Text = " ● Status: Questions JSON cleared"; UpdateQCount(); };
+        btnClearQ.Click += (s, e) => { txtQuestionsJson.Text = "{\n}"; lblStatus.Text = " ● Status: Questions JSON cleared"; UpdateQCount(); RefreshQuestionList(); };
 
         string esc(string s) => JsonEncodedText.Encode(s).ToString();
 
         btnApplyQ.Click += (s, e) => {
             string type = _builderType;
             string rawId = txtQId.Text.Trim();
+            if (rawId.Length == 0) { lblStatus.Text = " ● Status: Question ID is empty — cannot add"; return; }
             string id = esc(rawId);
             string inst = esc(txtQInstructions.Text.Trim());
 
@@ -390,17 +377,24 @@ public class JevPlaygroundForm : Form
                 }
                 lblStatus.Text = $" ● Status: Question '{rawId}' saved — {target.Count} question(s) now";
                 UpdateQCount();
+                RefreshQuestionList();
             }
             catch
             {
                 txtQuestionsJson.Text = single;
                 lblStatus.Text = " ● Status: Question applied (Questions JSON was invalid — replaced)";
                 UpdateQCount();
+                RefreshQuestionList();
             }
         };
 
         gbQ.Controls.AddRange(new Control[] { lblQTypeInfo, lblQi, txtQId, lblQins, txtQInstructions, lblQcrit, txtQCriterias, btnApplyQ, btnDeleteQ, btnClearQ });
         pnlQuestionsGui.Controls.Add(gbQ);
+
+        gbQList = new GroupBox { Text = "Loaded Questions", Width = 350, Height = 132, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), BackColor = ColCard, ForeColor = ColEmerald };
+        pnlQList = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Padding = new Padding(6, 6, 6, 6), BackColor = ColCard };
+        gbQList.Controls.Add(pnlQList);
+        pnlQuestionsGui.Controls.Add(gbQList);
         tabQGui.Controls.Add(pnlQuestionsGui);
 
         TabPage tabQJson = new TabPage("🔍 Raw JSON") { BackColor = ColCardAlt };
@@ -529,6 +523,109 @@ public class JevPlaygroundForm : Form
         lblQTypeInfo.Text = $"{lblQTypeInfo.Text.Split('·')[0].TrimEnd()} · {count} question(s)";
     }
 
+    private void RefreshQuestionList()
+    {
+        if (gbQList == null || pnlQList == null) return;
+        pnlQList.Controls.Clear();
+        int count = 0;
+        try
+        {
+            using var doc = JsonDocument.Parse(txtQuestionsJson.Text);
+            if (doc.RootElement.ValueKind != JsonValueKind.Object) return;
+            foreach (var prop in doc.RootElement.EnumerateObject())
+            {
+                count++;
+                string id = prop.Name;
+                string type = "";
+                if (prop.Value.ValueKind == JsonValueKind.Object && prop.Value.TryGetProperty("type", out var t))
+                {
+                    if (t.ValueKind == JsonValueKind.String) type = (t.GetString() ?? "").ToUpperInvariant();
+                }
+
+                var chip = new Panel { Width = 326, Height = 30, BackColor = ColCardAlt, Tag = id, Cursor = Cursors.Hand, Margin = new Padding(0, 3, 0, 0), Padding = new Padding(0) };
+                var lblId = new Label { Text = id, AutoSize = false, Width = 205, Height = 30, Location = new Point(8, 0), TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), ForeColor = ColText, Cursor = Cursors.Hand };
+                var lblTyp = new Label { Text = "[" + (type.Length == 0 ? "?" : type) + "]", AutoSize = false, Width = 66, Height = 30, Location = new Point(215, 0), TextAlign = ContentAlignment.MiddleLeft, ForeColor = ColMuted, Cursor = Cursors.Hand };
+                var lblDel = new Label { Text = "✕", AutoSize = false, Width = 24, Height = 30, Location = new Point(chip.Width - 26, 0), TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.Crimson, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
+
+                void Select() => SelectQuestion(id);
+                chip.Click += (s2, e2) => Select();
+                lblId.Click += (s2, e2) => Select();
+                lblTyp.Click += (s2, e2) => Select();
+                lblDel.Click += (s2, e2) => DeleteQuestionById(id);
+
+                chip.Controls.Add(lblId);
+                chip.Controls.Add(lblTyp);
+                chip.Controls.Add(lblDel);
+                if (id == txtQId.Text.Trim())
+                {
+                    chip.BackColor = Color.FromArgb(223, 235, 245);
+                }
+                pnlQList.Controls.Add(chip);
+            }
+        }
+        catch (JsonException)
+        {
+        }
+        gbQList.Text = $"Loaded Questions ({count})";
+    }
+
+    private void SelectQuestion(string id)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(txtQuestionsJson.Text);
+            if (doc.RootElement.ValueKind != JsonValueKind.Object) return;
+            if (!doc.RootElement.TryGetProperty(id, out var q) || q.ValueKind != JsonValueKind.Object) return;
+
+            txtQId.Text = id;
+            if (q.TryGetProperty("instructions", out var ins))
+            {
+                txtQInstructions.Text = ins.ValueKind == JsonValueKind.String ? ins.GetString() ?? "" : "";
+            }
+            if (q.TryGetProperty("criteria", out var crit))
+            {
+                if (crit.ValueKind == JsonValueKind.Object)
+                {
+                    txtQCriterias.Text = string.Join(", ", crit.EnumerateObject().Select(c => c.Name));
+                }
+                else if (crit.ValueKind == JsonValueKind.Array)
+                {
+                    txtQCriterias.Text = string.Join(", ", crit.EnumerateArray().Where(c => c.ValueKind == JsonValueKind.String).Select(c => c.GetString() ?? ""));
+                }
+            }
+            RefreshQuestionList();
+        }
+        catch (JsonException)
+        {
+        }
+    }
+
+    private void DeleteQuestionById(string id)
+    {
+        try
+        {
+            if (JsonNode.Parse(txtQuestionsJson.Text) is JsonObject target && target.Remove(id))
+            {
+                txtQuestionsJson.Text = target.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+                lblStatus.Text = $" ● Status: Question '{id}' deleted";
+                if (txtQId.Text.Trim() == id)
+                {
+                    SyncQuestionBuilder(txtQuestionsJson.Text);
+                }
+                UpdateQCount();
+                RefreshQuestionList();
+            }
+            else
+            {
+                lblStatus.Text = $" ● Status: Question '{id}' not found";
+            }
+        }
+        catch (JsonException)
+        {
+            lblStatus.Text = " ● Status: Cannot delete — Questions JSON is invalid";
+        }
+    }
+
     private static readonly (string Key, string Value)[] StatePresets = new[]
     {
         ("candidate_resume", "Senior Software Engineer with 8 years of experience building distributed systems in Python, Kubernetes, and AWS microservices."),
@@ -567,6 +664,7 @@ public class JevPlaygroundForm : Form
         txtQuestionsJson.Text = QuestionsPresets[index];
         SyncQuestionBuilder(txtQuestionsJson.Text);
         RefreshQuestionGui();
+        RefreshQuestionList();
     }
 
     private void SyncQuestionBuilder(string questionsJson)
