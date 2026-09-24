@@ -298,9 +298,9 @@ public class JevPlaygroundForm : Form
         TabControl tabQuestions = new TabControl { Dock = DockStyle.Fill, Font = new Font("Segoe UI", 9.5F), BackColor = ColCard, ForeColor = ColText };
 
         TabPage tabQGui = new TabPage("🎨 Visual Builder") { BackColor = ColCardAlt, ForeColor = ColText };
-        FlowLayoutPanel pnlQuestionsGui = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = ColCardAlt, Padding = new Padding(10), FlowDirection = FlowDirection.TopDown };
+        FlowLayoutPanel pnlQuestionsGui = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = ColCardAlt, Padding = new Padding(10), FlowDirection = FlowDirection.TopDown, WrapContents = false };
 
-        gbQ = new GroupBox { Text = "Add/Edit Primitive", Width = 350, Height = 265, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), BackColor = ColCard, ForeColor = ColBlue };
+        gbQ = new GroupBox { Text = "Add/Edit Primitive", Width = 350, Height = 265, Margin = new Padding(0), Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), BackColor = ColCard, ForeColor = ColBlue };
 
         lblQTypeInfo = new Label { Text = "Type: noul (Yes/No)", Location = new Point(15, 25), AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = ColAccent };
 
@@ -313,10 +313,10 @@ public class JevPlaygroundForm : Form
         lblQcrit = new Label { Text = "Options (comma separated):", Location = new Point(15, 192), AutoSize = true, ForeColor = ColMuted, Visible = false };
         txtQCriterias = new TextBox { Text = "Python, Go, Java", Location = new Point(15, 210), Width = 310, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, AutoSize = false, Height = 26, Visible = false };
 
-        btnApplyQ = new Button { Text = "➕ Add", Dock = DockStyle.Right, Width = 90, Height = 24, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
+        btnApplyQ = new Button { Text = "➕ Add", Dock = DockStyle.Left, Width = 90, Height = 24, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
         btnApplyQ.FlatAppearance.BorderSize = 0;
 
-        btnApplyJson = new Button { Text = "Apply to JSON", Location = new Point(15, 194), Width = 310, Height = 30, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+        btnApplyJson = new Button { Text = "Apply to JSON", Location = new Point(15, 199), Width = 120, Height = 25, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
         btnApplyJson.FlatAppearance.BorderSize = 0;
         btnApplyJson.Click += (s, e) => {
             try
@@ -420,7 +420,7 @@ public class JevPlaygroundForm : Form
         gbQ.Controls.AddRange(new Control[] { lblQTypeInfo, lblQi, txtQId, lblQins, txtQInstructions, lblQcrit, txtQCriterias });
         gbQ.Controls.Add(btnApplyJson);
 
-        gbQList = new GroupBox { Text = "Loaded Questions", Width = 350, Height = 150, Dock = DockStyle.Bottom, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), BackColor = ColCard, ForeColor = ColEmerald, Padding = new Padding(0) };
+        gbQList = new GroupBox { Text = "Loaded Questions", Width = 350, Height = 150, Margin = new Padding(0), Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), BackColor = ColCard, ForeColor = ColEmerald, Padding = new Padding(0) };
         var pnlAddBar = new Panel { Dock = DockStyle.Top, Height = 30, BackColor = ColCard, Padding = new Padding(0, 3, 3, 3) };
         pnlAddBar.Controls.Add(btnApplyQ);
         pnlQList = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Padding = new Padding(6, 4, 6, 6), BackColor = ColCard };
@@ -428,8 +428,8 @@ public class JevPlaygroundForm : Form
         gbQList.Controls.Add(pnlAddBar);
 
         pnlQuestionsGui.Controls.Add(gbQ);
+        pnlQuestionsGui.Controls.Add(gbQList);
 
-        tabQGui.Controls.Add(gbQList);
         tabQGui.Controls.Add(pnlQuestionsGui);
 
         TabPage tabQJson = new TabPage("🔍 Raw JSON") { BackColor = ColCardAlt };
