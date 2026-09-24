@@ -18,7 +18,7 @@ Multiple questions — even mixed types — can be sent together in one request 
 
 ## Features
 
-- **3-pane balanced layout** (33% / 33% / 33%): Statement, Question, Result. Splitters stay at one-third on resize.
+- **3-pane balanced layout**: Statement, Question, Result. Splitters stay balanced on resize.
 - **Visual builders** for Statement (key + content) and Question (ID, instructions, options/criteria) with live JSON generation.
 - **Preset scenarios** (header dropdown): Choice (Routing), Score (Rubric), Noul (Yes/No) — one click loads a realistic state + question set.
 - **Result rendering**: visual summary cards per answer plus a raw JSON inspector.
