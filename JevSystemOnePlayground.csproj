@@ -9,7 +9,7 @@
     <Nullable>enable</Nullable>
     <Version>1.0.0</Version>
     <Product>Jev System One Playground</Product>
-    <Description>33% 3-Pane Visual Playground for Jev/TypeSafe primitives (Choice, Score, Noul)</Description>
+    <Description>3-Pane Visual Playground for Jev/TypeSafe primitives (Choice, Score, Noul)</Description>
     <Authors>uci</Authors>
   </PropertyGroup>
 </Project>
