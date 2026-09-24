@@ -312,10 +312,10 @@ public class JevPlaygroundForm : Form
         lblQcrit = new Label { Text = "Options (comma separated):", Location = new Point(15, 225), AutoSize = true, ForeColor = ColMuted, Visible = false };
         txtQCriterias = new TextBox { Text = "Python, Go, Java", Location = new Point(15, 245), Width = 310, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, AutoSize = false, Height = 26, Visible = false };
 
-        btnApplyQ = new Button { Text = "➕ Add", Dock = DockStyle.Left, Width = 90, Height = 24, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
+        btnApplyQ = new Button { Text = "➕ Add", Location = new Point(15, 225), Width = 110, Height = 28, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
         btnApplyQ.FlatAppearance.BorderSize = 0;
 
-        btnApplyJson = new Button { Text = "Apply to JSON", Dock = DockStyle.Top, Height = 32, Margin = new Padding(7, 3, 7, 3), BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+        btnApplyJson = new Button { Text = "Apply to JSON", Location = new Point(140, 225), Width = 150, Height = 28, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
         btnApplyJson.FlatAppearance.BorderSize = 0;
         btnApplyJson.Click += (s, e) => {
             try
@@ -416,16 +416,12 @@ public class JevPlaygroundForm : Form
             }
         };
 
-        gbQ.Controls.AddRange(new Control[] { lblQTypeInfo, lblQi, txtQId, lblQins, txtQInstructions, lblQcrit, txtQCriterias });
-        tabQGui.Controls.Add(btnApplyJson);
+        gbQ.Controls.AddRange(new Control[] { lblQTypeInfo, lblQi, txtQId, lblQins, txtQInstructions, lblQcrit, txtQCriterias, btnApplyQ, btnApplyJson });
         tabQGui.Controls.Add(gbQ);
 
         gbQList = new GroupBox { Text = "Loaded Questions", Width = 350, Height = 150, Dock = DockStyle.Bottom, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), BackColor = ColCard, ForeColor = ColEmerald, Padding = new Padding(0) };
-        var pnlAddBar = new Panel { Dock = DockStyle.Top, Height = 30, BackColor = ColCard, Padding = new Padding(0, 3, 3, 3) };
-        pnlAddBar.Controls.Add(btnApplyQ);
         pnlQList = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Padding = new Padding(6, 4, 6, 6), BackColor = ColCard };
         gbQList.Controls.Add(pnlQList);
-        gbQList.Controls.Add(pnlAddBar);
         tabQGui.Controls.Add(gbQList);
 
         TabPage tabQJson = new TabPage("🔍 Raw JSON") { BackColor = ColCardAlt };
@@ -533,6 +529,8 @@ public class JevPlaygroundForm : Form
         lblQcrit.Visible = hasCriteria;
         txtQCriterias.Visible = hasCriteria;
         gbQ.Height = hasCriteria ? 292 : 235;
+        btnApplyQ.Location = new Point(15, hasCriteria ? 278 : 225);
+        btnApplyJson.Location = new Point(140, hasCriteria ? 278 : 225);
     }
 
     private void UpdateQCount()
