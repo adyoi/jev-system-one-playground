@@ -21,7 +21,7 @@ Multiple questions — even mixed types — can be sent together in one request 
 - **3-pane balanced layout**: Statement, Question, Result. Splitters stay balanced on resize.
 - **Visual builders** for Statement (key + content) and Question (ID, instructions, options/criteria) with live JSON generation.
 - **Preset scenarios** (header dropdown): Choice (Routing), Score (Rubric), Noul (Yes/No) — one click loads a realistic state + question set.
-- **Loaded Questions** list: every question in the JSON is shown; click to edit, ✕ to delete, Add dynamic (empty ID → auto `q{n}`, duplicate → `_2`, `_3`, …).
+- **Loaded Questions** list: every question in the JSON is shown; click to edit, ✕ to delete, **➕ Add** (dynamic: empty ID → auto `q{n}`, duplicate → `_2`, `_3`, …) plus an **Apply to JSON** button under the Add/Edit Primitive group.
 - **Result rendering**: visual summary cards per answer plus a raw JSON inspector.
 - **"Cek API"** check, editable endpoint & API key.
 - **Light theme** with flat controls, no borders, modern spacing.

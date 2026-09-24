@@ -315,7 +315,7 @@ public class JevPlaygroundForm : Form
         btnApplyQ = new Button { Text = "➕ Add", Dock = DockStyle.Left, Width = 90, Height = 24, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
         btnApplyQ.FlatAppearance.BorderSize = 0;
 
-        btnApplyJson = new Button { Text = "Apply to JSON", Dock = DockStyle.Left, Width = 130, Height = 24, BackColor = ColEmerald, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
+        btnApplyJson = new Button { Text = "Apply to JSON", Dock = DockStyle.Top, Height = 32, Margin = new Padding(7, 3, 7, 3), BackColor = ColEmerald, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
         btnApplyJson.FlatAppearance.BorderSize = 0;
         btnApplyJson.Click += (s, e) => {
             try
@@ -417,11 +417,11 @@ public class JevPlaygroundForm : Form
         };
 
         gbQ.Controls.AddRange(new Control[] { lblQTypeInfo, lblQi, txtQId, lblQins, txtQInstructions, lblQcrit, txtQCriterias });
+        tabQGui.Controls.Add(btnApplyJson);
         tabQGui.Controls.Add(gbQ);
 
         gbQList = new GroupBox { Text = "Loaded Questions", Width = 350, Height = 150, Dock = DockStyle.Bottom, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), BackColor = ColCard, ForeColor = ColEmerald, Padding = new Padding(0) };
         var pnlAddBar = new Panel { Dock = DockStyle.Top, Height = 30, BackColor = ColCard, Padding = new Padding(0, 3, 3, 3) };
-        pnlAddBar.Controls.Add(btnApplyJson);
         pnlAddBar.Controls.Add(btnApplyQ);
         pnlQList = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Padding = new Padding(6, 4, 6, 6), BackColor = ColCard };
         gbQList.Controls.Add(pnlQList);
