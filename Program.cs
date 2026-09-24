@@ -536,7 +536,8 @@ public class JevPlaygroundForm : Form
         lblQcrit.Text = _builderType == "choice" ? "Options (comma separated):" : "Criteria (comma separated):";
         lblQcrit.Visible = hasCriteria;
         txtQCriterias.Visible = hasCriteria;
-        gbQ.Height = hasCriteria ? 320 : 272;
+        gbQ.Height = hasCriteria ? 360 : 272;
+        btnApplyJson.Location = new Point(15, hasCriteria ? 310 : 218);
     }
 
     private void UpdateQCount()
