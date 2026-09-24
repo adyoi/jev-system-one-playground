@@ -53,6 +53,7 @@ public class JevPlaygroundForm : Form
     private Label lblQTypeInfo = null!;
     private Label lblQcrit = null!;
     private Button btnApplyQ = null!;
+    private Button btnApplyJson = null!;
     private GroupBox gbQ = null!;
     private GroupBox gbQList = null!;
     private FlowLayoutPanel pnlQList = null!;
@@ -311,8 +312,26 @@ public class JevPlaygroundForm : Form
         lblQcrit = new Label { Text = "Options (comma separated):", Location = new Point(15, 225), AutoSize = true, ForeColor = ColMuted, Visible = false };
         txtQCriterias = new TextBox { Text = "Python, Go, Java", Location = new Point(15, 245), Width = 310, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, AutoSize = false, Height = 26, Visible = false };
 
-        btnApplyQ = new Button { Text = "➕ Add", Dock = DockStyle.Left, Width = 130, Height = 24, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
+        btnApplyQ = new Button { Text = "➕ Add", Dock = DockStyle.Left, Width = 90, Height = 24, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
         btnApplyQ.FlatAppearance.BorderSize = 0;
+
+        btnApplyJson = new Button { Text = "Apply to JSON", Dock = DockStyle.Left, Width = 130, Height = 24, BackColor = ColEmerald, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
+        btnApplyJson.FlatAppearance.BorderSize = 0;
+        btnApplyJson.Click += (s, e) => {
+            try
+            {
+                var t = JsonNode.Parse(txtQuestionsJson.Text) as JsonObject;
+                if (t == null) throw new InvalidOperationException("Questions JSON is empty");
+                txtQuestionsJson.Text = t.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+                UpdateQCount();
+                RefreshQuestionList();
+                lblStatus.Text = $" ● Status: Questions JSON applied — {t.Count} question(s)";
+            }
+            catch (Exception ex)
+            {
+                lblStatus.Text = " ● Status: Apply failed — " + ex.GetType().Name + ": " + ex.Message;
+            }
+        };
 
         btnApplyQ.Click += (s, e) => {
             string type = _builderType;
@@ -402,6 +421,7 @@ public class JevPlaygroundForm : Form
 
         gbQList = new GroupBox { Text = "Loaded Questions", Width = 350, Height = 150, Dock = DockStyle.Bottom, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), BackColor = ColCard, ForeColor = ColEmerald, Padding = new Padding(0) };
         var pnlAddBar = new Panel { Dock = DockStyle.Top, Height = 30, BackColor = ColCard, Padding = new Padding(0, 3, 3, 3) };
+        pnlAddBar.Controls.Add(btnApplyJson);
         pnlAddBar.Controls.Add(btnApplyQ);
         pnlQList = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Padding = new Padding(6, 4, 6, 6), BackColor = ColCard };
         gbQList.Controls.Add(pnlQList);
