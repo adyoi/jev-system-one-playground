@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>JevSystemOnePlayground</RootNamespace>
+    <AssemblyName>JevSystemOnePlayground</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Version>1.0.0</Version>
+    <Product>Jev System One Playground</Product>
+    <Description>33% 3-Pane Visual Playground for Jev/TypeSafe primitives (Choice, Score, Noul)</Description>
+    <Authors>uci</Authors>
+  </PropertyGroup>
+</Project>

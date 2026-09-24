@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jev System One - Visual Playground</title>
+<style>
+  :root {
+    --green: #33ff66;
+    --green-dim: #1d8f3f;
+    --green-dark: #0b3d1c;
+    --amber: #ffb000;
+    --bg: #050805;
+    --crt: rgba(0, 0, 0, 0.22);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 50% 0%, #0a120a 0%, var(--bg) 70%);
+    color: var(--green);
+    font-family: "Courier New", Courier, monospace;
+    display: flex;
+    justify-content: center;
+    padding: 24px 12px;
+  }
+  .crt {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(0deg, var(--crt) 0px, var(--crt) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode: multiply;
+    z-index: 9999;
+  }
+  .crt::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
+  }
+  .screen {
+    width: 100%;
+    max-width: 940px;
+    border: 10px solid #241a10;
+    border-radius: 16px;
+    background: #000;
+    box-shadow: 0 0 0 2px #3a2c1c, 0 0 60px rgba(51,255,102,0.25), 0 24px 60px rgba(0,0,0,0.8);
+    padding: 0;
+    overflow: hidden;
+  }
+  .titlebar {
+    background: #241a10;
+    color: #ffd9b0;
+    font-size: 13px;
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #000;
+    user-select: none;
+  }
+  .leds { letter-spacing: 4px; }
+  .content { padding: 26px 30px 34px; }
+  h1 {
+    font-size: 26px;
+    margin: 0 0 4px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px var(--green), 0 0 20px var(--green);
+  }
+  h1 .blink { animation: blink 1s steps(2, start) infinite; }
+  h2 {
+    font-size: 18px;
+    margin: 34px 0 10px;
+    color: var(--amber);
+    text-shadow: 0 0 6px var(--amber);
+    border-bottom: 1px dashed var(--green-dark);
+    padding-bottom: 4px;
+  }
+  p, li { font-size: 14px; line-height: 1.7; }
+  a { color: #55ffaa; text-decoration: none; border-bottom: 1px dotted var(--green-dim); }
+  a:hover { color: #ccffee; text-shadow: 0 0 6px var(--green); }
+  .ascii {
+    color: var(--green-dim);
+    font-size: 12px;
+    line-height: 1.25;
+    white-space: pre;
+    overflow-x: auto;
+    margin: 8px 0 0;
+  }
+  .bootline { color: var(--green-dim); font-size: 12px; margin: 2px 0; }
+  .bootline .ok { color: #55ff88; }
+  .card {
+    border: 1px solid var(--green-dark);
+    border-left: 4px solid var(--green);
+    background: rgba(29,143,63,0.06);
+    padding: 10px 14px;
+    margin: 8px 0;
+  }
+  .card .t { color: var(--amber); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 10px 0;
+  }
+  th, td { border: 1px solid var(--green-dark); padding: 8px 10px; text-align: left; }
+  th { background: rgba(29,143,63,0.12); color: var(--amber); font-weight: bold; }
+  code {
+    background: var(--green-dark);
+    color: #d9ffe6;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+  }
+  .prompt { color: var(--amber); }
+  .cursor { display: inline-block; width: 9px; height: 14px; background: var(--green); vertical-align: -2px; animation: blink 1.1s steps(2, start) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  footer { margin-top: 40px; padding-top: 14px; border-top: 1px dashed var(--green-dark); font-size: 12px; color: var(--green-dim); }
+</style>
+</head>
+<body>
+<div class="crt"></div>
+<div class="screen">
+  <div class="titlebar">
+    <span>SYSTEM::JEV-SYSTEM-ONE/TERMINAL</span>
+    <span class="leds">&#9679;&#9679;&#9679;</span>
+  </div>
+  <div class="content">
+    <div class="ascii">
+   ___     _____   __  __   _____   _____   __   __   ___   _____   _____
+  | o |   / ___/  |  \/  | | ___|  |   _|  \ \ / /  | o |  /  _/|  | __ \  
+  |_=_|   ( (_    | |\/| | | |__   |  |_.   \ V /   |_=_|   | |_   | |_) |
+  |___|    \___|  |_|  |_| |____|  |_____|   \_/     |___|  \___|  |____/
+    </div>
+    <h1>JEV SYSTEM ONE <span class="blink">&block;</span></h1>
+    <div class="bootline">&gt; BOOT: visual playground v1.0 &nbsp;<span class="ok">[OK]</span></div>
+    <div class="bootline">&gt; LOAD: typesafe primitives module &nbsp;<span class="ok">[OK]</span></div>
+    <div class="bootline">&gt; LINK: winforms/net10-windows &nbsp;<span class="ok">[OK]</span></div>
+    <div class="bootline">&gt; STATE: READY &nbsp;<span class="ok">[03 QUESTIONS ONLINE]</span></div>
+    <p>
+      A desktop playground for composing and evaluating the
+      <b>Jev System One</b> primitives &mdash; <b>Choice</b>, <b>Score</b> and <b>Noul</b> &mdash;
+      in a 33% three-pane editor (State / Question / Result), with a dual
+      <i>visual builder &harr; raw JSON</i> workflow.
+    </p>
+
+    <h2>&gt; PRIMITIVES</h2>
+    <table>
+      <tr><th>TYPE</th><th>SHAPE</th><th>NOTES</th></tr>
+      <tr><td>choice</td><td>criteria &#8594; option routing</td><td>one outcome per option</td></tr>
+      <tr><td>score</td><td>criteria legends + levels</td><td>scalar severity / rubric</td></tr>
+      <tr><td>noul</td><td>yes / no gate</td><td>one question, one verdict</td></tr>
+    </table>
+
+    <h2>&gt; FEATURES</h2>
+    <div class="card"><span class="t">[3-PANE EDITOR]</span> &mdash; State context, typed questions and live results side-by-side.</div>
+    <div class="card"><span class="t">[VISUAL + RAW]</span> &mdash; Build with guided forms, inspect/edit the exact JSON payload in parallel tabs.</div>
+    <div class="card"><span class="t">[ADD / DELETE / CLEAR]</span> &mdash; Compose unlimited questions per evaluation; upsert by id, delete by id.</div>
+    <div class="card"><span class="t">[LIVE EVALUATION]</span> &mdash; Token-based matching of state against every primitive (simulated where the gateway is 404).</div>
+    <div class="card"><span class="t">[PRESETS]</span> &mdash; Choice (Routing), Score (Rubric) and multi-question Noul (Yes/No) starter packs.</div>
+
+    <h2>&gt; RUN</h2>
+    <p>
+      <span class="prompt">C:\&gt;</span> <code>dotnet run --project JevSystemOnePlayground.csproj</code><br>
+      <span class="prompt">C:\&gt;</span> <code>dotnet publish -c Release -p:PublishProfile=win-x64</code>
+    </p>
+
+    <h2>&gt; SOURCE</h2>
+    <p>
+      Repo: <span class="prompt">git@github.com:</span><a href="https://github.com/adyoi/jev-system-one-playground">adyoi/jev-system-one-playground</a>
+      &nbsp;|&nbsp; Tech: C# / .NET 10 / Windows Forms / System.Text.Json
+    </p>
+
+    <footer>
+      (c) 2026 Jev System One &middot; classic retro theme &middot; phosphor green &middot;
+      <span class="prompt">$&nbsp;</span><span class="cursor"></span>
+    </footer>
+  </div>
+</div>
+</body>
+</html>
