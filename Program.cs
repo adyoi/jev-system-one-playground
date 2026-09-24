@@ -315,7 +315,7 @@ public class JevPlaygroundForm : Form
         btnApplyQ = new Button { Text = "➕ Add", Dock = DockStyle.Left, Width = 90, Height = 24, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
         btnApplyQ.FlatAppearance.BorderSize = 0;
 
-        btnApplyJson = new Button { Text = "Apply to JSON", Dock = DockStyle.Top, Height = 32, Margin = new Padding(7, 3, 7, 3), BackColor = ColEmerald, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+        btnApplyJson = new Button { Text = "Apply to JSON", Dock = DockStyle.Top, Height = 32, Margin = new Padding(7, 3, 7, 3), BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
         btnApplyJson.FlatAppearance.BorderSize = 0;
         btnApplyJson.Click += (s, e) => {
             try
