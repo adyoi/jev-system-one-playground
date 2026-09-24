@@ -304,19 +304,19 @@ public class JevPlaygroundForm : Form
 
         lblQTypeInfo = new Label { Text = "Type: noul (Yes/No)", Location = new Point(15, 25), AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = ColAccent };
 
-        Label lblQi = new Label { Text = "Question ID:", Location = new Point(15, 55), AutoSize = true, ForeColor = ColMuted };
-        txtQId = new TextBox { Text = "mentions_python", Location = new Point(15, 75), Width = 310, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, AutoSize = false, Height = 26 };
+        Label lblQi = new Label { Text = "Question ID:", Location = new Point(15, 48), AutoSize = true, ForeColor = ColMuted };
+        txtQId = new TextBox { Text = "mentions_python", Location = new Point(15, 66), Width = 310, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, AutoSize = false, Height = 26 };
 
-        Label lblQins = new Label { Text = "Instructions:", Location = new Point(15, 105), AutoSize = true, ForeColor = ColMuted };
-        txtQInstructions = new TextBox { Text = "Does the candidate state experience using Python?", Location = new Point(15, 125), Width = 310, Height = 90, Multiline = true, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, Padding = new Padding(10, 6, 10, 6) };
+        Label lblQins = new Label { Text = "Instructions:", Location = new Point(15, 98), AutoSize = true, ForeColor = ColMuted };
+        txtQInstructions = new TextBox { Text = "Does the candidate state experience using Python?", Location = new Point(15, 114), Width = 310, Height = 72, Multiline = true, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, Padding = new Padding(10, 6, 10, 6) };
 
-        lblQcrit = new Label { Text = "Options (comma separated):", Location = new Point(15, 256), AutoSize = true, ForeColor = ColMuted, Visible = false };
-        txtQCriterias = new TextBox { Text = "Python, Go, Java", Location = new Point(15, 276), Width = 310, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, AutoSize = false, Height = 26, Visible = false };
+        lblQcrit = new Label { Text = "Options (comma separated):", Location = new Point(15, 192), AutoSize = true, ForeColor = ColMuted, Visible = false };
+        txtQCriterias = new TextBox { Text = "Python, Go, Java", Location = new Point(15, 210), Width = 310, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, AutoSize = false, Height = 26, Visible = false };
 
         btnApplyQ = new Button { Text = "➕ Add", Dock = DockStyle.Right, Width = 90, Height = 24, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
         btnApplyQ.FlatAppearance.BorderSize = 0;
 
-        btnApplyJson = new Button { Text = "Apply to JSON", Location = new Point(15, 218), Width = 310, Height = 30, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+        btnApplyJson = new Button { Text = "Apply to JSON", Location = new Point(15, 194), Width = 310, Height = 30, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
         btnApplyJson.FlatAppearance.BorderSize = 0;
         btnApplyJson.Click += (s, e) => {
             try
@@ -536,8 +536,8 @@ public class JevPlaygroundForm : Form
         lblQcrit.Text = _builderType == "choice" ? "Options (comma separated):" : "Criteria (comma separated):";
         lblQcrit.Visible = hasCriteria;
         txtQCriterias.Visible = hasCriteria;
-        gbQ.Height = hasCriteria ? 360 : 272;
-        btnApplyJson.Location = new Point(15, hasCriteria ? 310 : 218);
+        gbQ.Height = hasCriteria ? 288 : 236;
+        btnApplyJson.Location = new Point(15, hasCriteria ? 242 : 194);
     }
 
     private void UpdateQCount()
