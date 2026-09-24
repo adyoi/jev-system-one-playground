@@ -311,7 +311,7 @@ public class JevPlaygroundForm : Form
         lblQcrit = new Label { Text = "Options (comma separated):", Location = new Point(15, 225), AutoSize = true, ForeColor = ColMuted, Visible = false };
         txtQCriterias = new TextBox { Text = "Python, Go, Java", Location = new Point(15, 245), Width = 310, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, AutoSize = false, Height = 26, Visible = false };
 
-        btnApplyQ = new Button { Text = "➕ Apply to JSON", Dock = DockStyle.Left, Width = 160, Height = 24, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
+        btnApplyQ = new Button { Text = "➕ Add", Dock = DockStyle.Left, Width = 130, Height = 24, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
         btnApplyQ.FlatAppearance.BorderSize = 0;
 
         btnApplyQ.Click += (s, e) => {
