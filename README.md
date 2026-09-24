@@ -23,7 +23,7 @@ Multiple questions — even mixed types — can be sent together in one request 
 - **Preset scenarios** (header dropdown): Choice (Routing), Score (Rubric), Noul (Yes/No) — one click loads a realistic state + question set.
 - **Loaded Questions** list: every question in the JSON is shown; click to edit, ✕ to delete, **➕ Add** (dynamic: empty ID → auto `q{n}`, duplicate → `_2`, `_3`, …) plus an **Apply to JSON** button under the Add/Edit Primitive group.
 - **Result rendering**: visual summary cards per answer plus a raw JSON inspector.
-- **"Cek API"** check, editable endpoint & API key.
+- **"Cek API"** check, editable endpoint & API key (configured via env var / local user config, see below).
 - **Light theme** with flat controls, no borders, modern spacing.
 - **GitHub Pages** documentation site (classic retro theme): <https://adyoi.github.io/jev-system-one-playground/> (source in [`docs/`](docs/index.html)).
 
@@ -35,6 +35,22 @@ Multiple questions — even mixed types — can be sent together in one request 
 
 - [.NET SDK 10.0.x](https://dotnet.microsoft.com/download) (built against `net10.0-windows`)
 - Windows 10/11
+
+## API Key configuration
+
+The API key is **never stored in the repo**. It is resolved at startup in this order:
+
+1. Environment variable `JEV_SYSTEM_ONE_API_KEY`
+2. Local per-user file `%AppData%\JevSystemOne\config.json` → `{ "apiKey": "…" }` (auto-written when you edit the key in the UI and close the app)
+3. Empty box (prompted on use)
+
+```powershell
+# PowerShell
+$env:JEV_SYSTEM_ONE_API_KEY = "apikey_..."   # per-session
+setx JEV_SYSTEM_ONE_API_KEY "apikey_..."     # persistent, current user
+```
+
+> Security note: no API key has ever been committed to this repo (it was recreated clean). If you ever reuse/publish a key elsewhere, treat it like a usual secret.
 
 ## Build & Run
 
@@ -122,5 +138,4 @@ dotnet publish -c Release -p:PublishProfile=win-x64
 
 - Evaluation is simulated (see above); real API wiring + typed response parsing are the main next step.
 - UI is a single file; consider splitting into panes, evaluator, and theme modules as it grows.
-- API key is pre-filled as a default; prefer storing user settings outside the build and protecting with DPAPI.
 - No persistence of custom presets yet.

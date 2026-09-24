@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -22,7 +23,48 @@ static class Program
 
 public class JevPlaygroundForm : Form
 {
-    private const string DefaultApiKey = "apikey_272923e60f3dd3644498fc6f2d175214da0_21c7fcdf476d01cfc89715050d0ca8492d7e1b2502f3082905c2a9f57c05a4d9";
+    private const string ApiKeyEnvVar = "JEV_SYSTEM_ONE_API_KEY";
+
+    private static string ApiKeyConfigDir => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "JevSystemOne");
+
+    private static string ApiKeyConfigFile => Path.Combine(ApiKeyConfigDir, "config.json");
+
+    private static string ResolveApiKey()
+    {
+        string? env = Environment.GetEnvironmentVariable(ApiKeyEnvVar);
+        if (!string.IsNullOrWhiteSpace(env)) return env.Trim();
+        try
+        {
+            if (File.Exists(ApiKeyConfigFile))
+            {
+                using var doc = JsonDocument.Parse(File.ReadAllText(ApiKeyConfigFile));
+                if (doc.RootElement.TryGetProperty("apiKey", out var k) && k.ValueKind == JsonValueKind.String)
+                {
+                    var v = k.GetString();
+                    if (!string.IsNullOrWhiteSpace(v)) return v.Trim();
+                }
+            }
+        }
+        catch
+        {
+        }
+        return "";
+    }
+
+    private static void SaveApiKeyLocal(string apiKey)
+    {
+        if (string.IsNullOrWhiteSpace(apiKey)) return;
+        string? env = Environment.GetEnvironmentVariable(ApiKeyEnvVar);
+        if (!string.IsNullOrWhiteSpace(env) && env.Trim() == apiKey) return;
+        try
+        {
+            Directory.CreateDirectory(ApiKeyConfigDir);
+            File.WriteAllText(ApiKeyConfigFile, JsonSerializer.Serialize(new { apiKey }, new JsonSerializerOptions { WriteIndented = true }));
+        }
+        catch
+        {
+        }
+    }
 
     private static readonly Color ColBg = Color.FromArgb(248, 250, 252);
     private static readonly Color ColCard = Color.White;
@@ -54,6 +96,7 @@ public class JevPlaygroundForm : Form
     private Label lblQcrit = null!;
     private Button btnApplyQ = null!;
     private Button btnApplyJson = null!;
+    private string _selectedQId = "";
     private GroupBox gbQ = null!;
     private GroupBox gbQList = null!;
     private FlowLayoutPanel pnlQList = null!;
@@ -81,6 +124,7 @@ public class JevPlaygroundForm : Form
             UpdateSplitterDistances();
             await PerformEvaluationAsync();
         };
+        this.FormClosing += (s, e) => SaveApiKeyLocal(txtApiKey.Text.Trim());
     }
 
     private const uint EM_SETRECT = 0x00B3;
@@ -198,7 +242,7 @@ public class JevPlaygroundForm : Form
         txtEndpoint = new TextBox { Text = "https://api.typesafe.ai/v1/system-one", Width = 230, Font = new Font("Segoe UI", 9.5F), BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, AutoSize = false, Height = 26, Margin = new Padding(0, 4, 10, 0) };
 
         Label lblKey = new Label { Text = "API Key:", Width = 60, TextAlign = ContentAlignment.MiddleRight, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), ForeColor = ColMuted, Margin = new Padding(0, 6, 4, 0) };
-        txtApiKey = new TextBox { Text = DefaultApiKey, Width = 300, Font = new Font("Segoe UI", 9.5F), BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, AutoSize = false, Height = 26, Margin = new Padding(0, 4, 10, 0) };
+        txtApiKey = new TextBox { Text = ResolveApiKey(), Width = 300, Font = new Font("Segoe UI", 9.5F), BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, AutoSize = false, Height = 26, Margin = new Padding(0, 4, 10, 0) };
 
         btnCheckApi = new Button
         {
@@ -324,12 +368,36 @@ public class JevPlaygroundForm : Form
         btnApplyJson.Click += (s, e) => {
             try
             {
-                var t = JsonNode.Parse(txtQuestionsJson.Text) as JsonObject;
-                if (t == null) throw new InvalidOperationException("Questions JSON is empty");
-                txtQuestionsJson.Text = t.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+                var target = JsonNode.Parse(txtQuestionsJson.Text) as JsonObject;
+                if (target == null) throw new InvalidOperationException("Questions JSON is empty");
+
+                string rawId = txtQId.Text.Trim();
+                if (rawId.Length == 0) throw new InvalidOperationException("Question ID is empty");
+
+                var q = ComposeQuestionFromForm(_builderType);
+                string action;
+                if (_selectedQId.Length > 0 && _selectedQId != rawId && target.ContainsKey(_selectedQId))
+                {
+                    target.Remove(_selectedQId);
+                    target[rawId] = q;
+                    action = $"renamed '{_selectedQId}' → '{rawId}'";
+                }
+                else if (target.ContainsKey(rawId))
+                {
+                    target.Remove(rawId);
+                    target[rawId] = q;
+                    action = $"updated '{rawId}'";
+                }
+                else
+                {
+                    target[rawId] = q;
+                    action = $"added '{rawId}'";
+                }
+                _selectedQId = rawId;
+                txtQuestionsJson.Text = target.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
                 UpdateQCount();
                 RefreshQuestionList();
-                lblStatus.Text = $" ● Status: Questions JSON applied — {t.Count} question(s)";
+                lblStatus.Text = $" ● Status: Question {action} — {target.Count} question(s) now";
             }
             catch (Exception ex)
             {
@@ -355,27 +423,7 @@ public class JevPlaygroundForm : Form
                     txtQId.Text = rawId;
                 }
 
-                var q = new JsonObject
-                {
-                    ["type"] = type,
-                    ["instructions"] = txtQInstructions.Text.Trim()
-                };
-                if (type == "choice")
-                {
-                    var parts = txtQCriterias.Text.Split(',').Select(p => p.Trim()).Where(p => p.Length > 0).ToList();
-                    if (parts.Count == 0) parts.Add("Option A");
-                    var crit = new JsonObject();
-                    foreach (var p in parts) crit[p] = "Option " + p;
-                    q["criteria"] = crit;
-                }
-                else if (type == "score")
-                {
-                    var parts = txtQCriterias.Text.Split(',').Select(p => p.Trim()).Where(p => p.Length > 0).ToList();
-                    if (parts.Count == 0) parts.Add("Severity Level");
-                    var arr = new JsonArray();
-                    foreach (var p in parts) arr.Add(p);
-                    q["criteria"] = arr;
-                }
+                var q = ComposeQuestionFromForm(type);
 
                 string suf = rawId;
                 bool appended = false;
@@ -413,6 +461,7 @@ public class JevPlaygroundForm : Form
                 txtQuestionsJson.Text = target.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
                 UpdateQCount();
                 RefreshQuestionList();
+                _selectedQId = rawId;
             }
             catch (Exception ex)
             {
@@ -559,6 +608,32 @@ public class JevPlaygroundForm : Form
         lblQTypeInfo.Text = $"{lblQTypeInfo.Text.Split('·')[0].TrimEnd()} · {count} question(s)";
     }
 
+    private JsonObject ComposeQuestionFromForm(string type)
+    {
+        var q = new JsonObject
+        {
+            ["type"] = type,
+            ["instructions"] = txtQInstructions.Text.Trim()
+        };
+        if (type == "choice")
+        {
+            var parts = txtQCriterias.Text.Split(',').Select(p => p.Trim()).Where(p => p.Length > 0).ToList();
+            if (parts.Count == 0) parts.Add("Option A");
+            var crit = new JsonObject();
+            foreach (var p in parts) crit[p] = "Option " + p;
+            q["criteria"] = crit;
+        }
+        else if (type == "score")
+        {
+            var parts = txtQCriterias.Text.Split(',').Select(p => p.Trim()).Where(p => p.Length > 0).ToList();
+            if (parts.Count == 0) parts.Add("Severity Level");
+            var arr = new JsonArray();
+            foreach (var p in parts) arr.Add(p);
+            q["criteria"] = arr;
+        }
+        return q;
+    }
+
     private void RefreshQuestionList()
     {
         if (gbQList == null || pnlQList == null) return;
@@ -614,6 +689,7 @@ public class JevPlaygroundForm : Form
             if (!doc.RootElement.TryGetProperty(id, out var q) || q.ValueKind != JsonValueKind.Object) return;
 
             txtQId.Text = id;
+            _selectedQId = id;
             if (q.TryGetProperty("instructions", out var ins))
             {
                 txtQInstructions.Text = ins.ValueKind == JsonValueKind.String ? ins.GetString() ?? "" : "";
@@ -712,6 +788,7 @@ public class JevPlaygroundForm : Form
             if (first.Value.ValueKind != JsonValueKind.Object) return;
 
             txtQId.Text = first.Name;
+            _selectedQId = first.Name;
             if (first.Value.TryGetProperty("instructions", out var ins))
             {
                 txtQInstructions.Text = ins.ValueKind == JsonValueKind.String ? ins.GetString() ?? "" : "";
