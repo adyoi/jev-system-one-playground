@@ -316,7 +316,7 @@ public class JevPlaygroundForm : Form
         btnApplyQ = new Button { Text = "➕ Add", Dock = DockStyle.Left, Width = 90, Height = 24, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
         btnApplyQ.FlatAppearance.BorderSize = 0;
 
-        btnApplyJson = new Button { Text = "Apply to JSON", Location = new Point(15, 199), Width = 120, Height = 25, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
+        btnApplyJson = new Button { Text = "Apply to JSON", Location = new Point(15, 200), Width = 120, Height = 25, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
         btnApplyJson.FlatAppearance.BorderSize = 0;
         btnApplyJson.Click += (s, e) => {
             try
@@ -421,7 +421,7 @@ public class JevPlaygroundForm : Form
         gbQ.Controls.Add(btnApplyJson);
 
         gbQList = new GroupBox { Text = "Loaded Questions", Width = 350, Height = 150, Margin = new Padding(0), Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), BackColor = ColCard, ForeColor = ColEmerald, Padding = new Padding(0) };
-        var pnlAddBar = new Panel { Dock = DockStyle.Top, Height = 30, BackColor = ColCard, Padding = new Padding(0, 3, 3, 3) };
+        var pnlAddBar = new Panel { Dock = DockStyle.Top, Height = 30, BackColor = ColCard, Padding = new Padding(6, 3, 3, 3) };
         pnlAddBar.Controls.Add(btnApplyQ);
         pnlQList = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Padding = new Padding(6, 4, 6, 6), BackColor = ColCard };
         gbQList.Controls.Add(pnlQList);
@@ -537,7 +537,7 @@ public class JevPlaygroundForm : Form
         lblQcrit.Visible = hasCriteria;
         txtQCriterias.Visible = hasCriteria;
         gbQ.Height = hasCriteria ? 288 : 236;
-        btnApplyJson.Location = new Point(15, hasCriteria ? 242 : 194);
+        btnApplyJson.Location = new Point(15, hasCriteria ? 246 : 200);
     }
 
     private void UpdateQCount()
