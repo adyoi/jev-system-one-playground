@@ -261,13 +261,16 @@ public class JevPlaygroundForm : Form
             string k = txtStateKey.Text.Trim();
             if (k.Length == 0)
             {
-                txtStateJson.Text = "{\n}";
                 lblStatus.Text = " ● Status: State key is empty";
                 return;
             }
-            var obj = new JsonObject { [k] = txtStateVal.Text.Trim() };
+            JsonObject? obj = null;
+            try { obj = JsonNode.Parse(txtStateJson.Text) as JsonObject; } catch { }
+            obj ??= new JsonObject();
+            bool existed = obj.ContainsKey(k);
+            obj[k] = txtStateVal.Text.Trim();
             txtStateJson.Text = obj.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
-            lblStatus.Text = $" ● Status: State '{k}' applied to JSON";
+            lblStatus.Text = $" ● Status: State '{k}' {(existed ? "updated" : "added")} to JSON — {obj.Count} key(s)";
         };
         gbState.Controls.AddRange(new Control[] { lblSk, txtStateKey, lblSv, txtStateVal, btnApplyState });
         pnlStateGui.Controls.Add(gbState);
