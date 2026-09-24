@@ -53,8 +53,6 @@ public class JevPlaygroundForm : Form
     private Label lblQTypeInfo = null!;
     private Label lblQcrit = null!;
     private Button btnApplyQ = null!;
-    private Button btnDeleteQ = null!;
-    private Button btnClearQ = null!;
     private GroupBox gbQ = null!;
     private GroupBox gbQList = null!;
     private FlowLayoutPanel pnlQList = null!;
@@ -314,49 +312,13 @@ public class JevPlaygroundForm : Form
         lblQcrit = new Label { Text = "Options (comma separated):", Location = new Point(15, 225), AutoSize = true, ForeColor = ColMuted, Visible = false };
         txtQCriterias = new TextBox { Text = "Python, Go, Java", Location = new Point(15, 245), Width = 310, BackColor = ColInput, ForeColor = ColText, BorderStyle = BorderStyle.None, AutoSize = false, Height = 26, Visible = false };
 
-        btnApplyQ = new Button { Text = "➕ Add", Location = new Point(15, 225), Width = 110, Height = 28, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
+        btnApplyQ = new Button { Text = "➕ Add", Dock = DockStyle.Top, Height = 30, BackColor = ColBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
         btnApplyQ.FlatAppearance.BorderSize = 0;
-
-        btnDeleteQ = new Button { Text = "🗑 Delete", Location = new Point(133, 225), Width = 92, Height = 28, BackColor = ColCardAlt, ForeColor = Color.Crimson, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
-        btnDeleteQ.FlatAppearance.BorderSize = 0;
-        btnDeleteQ.Click += (s, e) => {
-            string rawId = txtQId.Text.Trim();
-            if (rawId.Length == 0) { lblStatus.Text = " ● Status: No Question ID set to delete"; return; }
-            DeleteQuestionById(rawId);
-        };
-
-        btnClearQ = new Button { Text = "✖ Clear", Location = new Point(235, 225), Width = 55, Height = 28, BackColor = ColCardAlt, ForeColor = ColMuted, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
-        btnClearQ.FlatAppearance.BorderSize = 0;
-        btnClearQ.Click += (s, e) => { txtQuestionsJson.Text = "{\n}"; lblStatus.Text = " ● Status: Questions JSON cleared"; UpdateQCount(); RefreshQuestionList(); };
-
-        string esc(string s) => JsonEncodedText.Encode(s).ToString();
 
         btnApplyQ.Click += (s, e) => {
             string type = _builderType;
             string rawId = txtQId.Text.Trim();
             if (rawId.Length == 0) { lblStatus.Text = " ● Status: Question ID is empty — cannot add"; return; }
-            string id = esc(rawId);
-            string inst = esc(txtQInstructions.Text.Trim());
-
-            string single;
-            if (type == "noul")
-            {
-                single = $"{{\n  \"{id}\": {{\n    \"type\": \"noul\",\n    \"instructions\": \"{inst}\"\n  }}\n}}";
-            }
-            else if (type == "choice")
-            {
-                var parts = txtQCriterias.Text.Split(',').Select(p => p.Trim()).Where(p => p.Length > 0).ToList();
-                if (parts.Count == 0) parts.Add("Option A");
-                string criteriaJson = string.Join(",\n      ", parts.Select(p => $"\"{esc(p)}\": \"Option {esc(p)}\""));
-                single = $"{{\n  \"{id}\": {{\n    \"type\": \"choice\",\n    \"instructions\": \"{inst}\",\n    \"criteria\": {{\n      {criteriaJson}\n    }}\n  }}\n}}";
-            }
-            else
-            {
-                var parts = txtQCriterias.Text.Split(',').Select(p => p.Trim()).Where(p => p.Length > 0).ToList();
-                if (parts.Count == 0) parts.Add("Severity Level");
-                string criteriaJson = string.Join(",\n      ", parts.Select(p => $"\"{esc(p)}\""));
-                single = $"{{\n  \"{id}\": {{\n    \"type\": \"score\",\n    \"instructions\": \"{inst}\",\n    \"criteria\": [\n      {criteriaJson}\n    ]\n  }}\n}}";
-            }
 
             try
             {
@@ -364,36 +326,79 @@ public class JevPlaygroundForm : Form
                 try { target = JsonNode.Parse(txtQuestionsJson.Text) as JsonObject; } catch { }
                 target ??= new JsonObject();
 
-                var qNode = JsonNode.Parse(single);
-                if (qNode is JsonObject qObj && qObj[rawId] != null)
+                var q = new JsonObject
+                {
+                    ["type"] = type,
+                    ["instructions"] = txtQInstructions.Text.Trim()
+                };
+                if (type == "choice")
+                {
+                    var parts = txtQCriterias.Text.Split(',').Select(p => p.Trim()).Where(p => p.Length > 0).ToList();
+                    if (parts.Count == 0) parts.Add("Option A");
+                    var crit = new JsonObject();
+                    foreach (var p in parts) crit[p] = "Option " + p;
+                    q["criteria"] = crit;
+                }
+                else if (type == "score")
+                {
+                    var parts = txtQCriterias.Text.Split(',').Select(p => p.Trim()).Where(p => p.Length > 0).ToList();
+                    if (parts.Count == 0) parts.Add("Severity Level");
+                    var arr = new JsonArray();
+                    foreach (var p in parts) arr.Add(p);
+                    q["criteria"] = arr;
+                }
+
+                string suf = rawId;
+                bool appended = false;
+                int k = 1;
+                while (target[suf] is JsonNode existing)
+                {
+                    if (existing.ToJsonString() == q.ToJsonString())
+                    {
+                        k++;
+                        suf = $"{rawId}_{k}";
+                        appended = true;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                if (appended)
+                {
+                    target[suf] = q;
+                    txtQId.Text = suf;
+                    lblStatus.Text = $" ● Status: Question '{suf}' added — {target.Count} question(s) now";
+                }
+                else if (target[rawId] != null)
                 {
                     target.Remove(rawId);
-                    target[rawId] = qObj[rawId];
-                    txtQuestionsJson.Text = target.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+                    target[rawId] = q;
+                    lblStatus.Text = $" ● Status: Question '{rawId}' updated — {target.Count} question(s) now";
                 }
                 else
                 {
-                    txtQuestionsJson.Text = single;
+                    target[rawId] = q;
+                    lblStatus.Text = $" ● Status: Question '{rawId}' added — {target.Count} question(s) now";
                 }
-                lblStatus.Text = $" ● Status: Question '{rawId}' saved — {target.Count} question(s) now";
+                txtQuestionsJson.Text = target.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
                 UpdateQCount();
                 RefreshQuestionList();
             }
-            catch
+            catch (Exception ex)
             {
-                txtQuestionsJson.Text = single;
-                lblStatus.Text = " ● Status: Question applied (Questions JSON was invalid — replaced)";
-                UpdateQCount();
-                RefreshQuestionList();
+                lblStatus.Text = " ● Status: Add failed — " + ex.GetType().Name + ": " + ex.Message;
             }
         };
 
-        gbQ.Controls.AddRange(new Control[] { lblQTypeInfo, lblQi, txtQId, lblQins, txtQInstructions, lblQcrit, txtQCriterias, btnApplyQ, btnDeleteQ, btnClearQ });
+        gbQ.Controls.AddRange(new Control[] { lblQTypeInfo, lblQi, txtQId, lblQins, txtQInstructions, lblQcrit, txtQCriterias });
         pnlQuestionsGui.Controls.Add(gbQ);
 
-        gbQList = new GroupBox { Text = "Loaded Questions", Width = 350, Height = 132, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), BackColor = ColCard, ForeColor = ColEmerald };
-        pnlQList = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Padding = new Padding(6, 6, 6, 6), BackColor = ColCard };
+        gbQList = new GroupBox { Text = "Loaded Questions", Width = 350, Height = 150, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), BackColor = ColCard, ForeColor = ColEmerald, Padding = new Padding(0) };
+        pnlQList = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Padding = new Padding(6, 4, 6, 6), BackColor = ColCard };
         gbQList.Controls.Add(pnlQList);
+        gbQList.Controls.Add(btnApplyQ);
         pnlQuestionsGui.Controls.Add(gbQList);
         tabQGui.Controls.Add(pnlQuestionsGui);
 
@@ -501,10 +506,7 @@ public class JevPlaygroundForm : Form
         lblQcrit.Text = _builderType == "choice" ? "Options (comma separated):" : "Criteria (comma separated):";
         lblQcrit.Visible = hasCriteria;
         txtQCriterias.Visible = hasCriteria;
-        btnApplyQ.Location = new Point(15, hasCriteria ? 278 : 225);
-        btnDeleteQ.Location = new Point(133, hasCriteria ? 278 : 225);
-        btnClearQ.Location = new Point(235, hasCriteria ? 278 : 225);
-        gbQ.Height = hasCriteria ? 320 : 265;
+        gbQ.Height = hasCriteria ? 292 : 235;
     }
 
     private void UpdateQCount()
